@@ -1,7 +1,10 @@
+const fs = require('fs')
+const path = require('path')
+
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-exports.getProducts = (req, res, next) => {
+const getProducts = (req, res, next) => {
   Product.find()
     .then(products => {
       console.log(products);
@@ -12,11 +15,13 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
-exports.getProduct = (req, res, next) => {
+const getProduct = (req, res, next) => {
   const prodId = req.params.productId;
   Product.findById(prodId)
     .then(product => {
@@ -26,10 +31,14 @@ exports.getProduct = (req, res, next) => {
         path: '/products'
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getIndex = (req, res, next) => {
+const getIndex = (req, res, next) => {
   Product.find()
     .then(products => {
       res.render('shop/index', {
@@ -39,11 +48,13 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
-exports.getCart = (req, res, next) => {
+const getCart = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .then(user => {
@@ -54,10 +65,14 @@ exports.getCart = (req, res, next) => {
         products: products
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postCart = (req, res, next) => {
+const postCart = (req, res, next) => {
   const prodId = req.body.productId;
   Product.findById(prodId)
     .then(product => {
@@ -69,17 +84,21 @@ exports.postCart = (req, res, next) => {
     });
 };
 
-exports.postCartDeleteProduct = (req, res, next) => {
+const postCartDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
   req.user
     .removeFromCart(prodId)
     .then(result => {
       res.redirect('/cart');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postOrder = (req, res, next) => {
+const postOrder = (req, res, next) => {
   req.user
     .populate('cart.items.productId')
     .then(user => {
@@ -101,10 +120,14 @@ exports.postOrder = (req, res, next) => {
     .then(() => {
       res.redirect('/orders');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getOrders = (req, res, next) => {
+const getOrders = (req, res, next) => {
   Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', {
@@ -113,5 +136,36 @@ exports.getOrders = (req, res, next) => {
         orders: orders
       });
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
+
+const getInvoice = (req,res,next) => {
+  const orderId = req.params.orderId;
+  const invoiceName = 'invoice-' + orderId + '.pdf';
+  const invoicePath = path.join('data', 'invoices', invoiceName);
+  fs.readFile(invoicePath, (err,data) => {
+    if(err) {
+      return next(err);
+    }
+    res.setHeader('Content-Type', 'attachment; filename="' + invoiceName + '"')
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(data);
+  })
+}
+
+
+module.exports = {
+  getProducts,
+  getProduct,
+  getIndex,
+  getCart,
+  postCart,
+  postCartDeleteProduct,
+  postOrder,
+  getOrders,
+  getInvoice
+}
