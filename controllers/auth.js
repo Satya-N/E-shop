@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport(
   })
 );
 
-exports.getLogin = (req, res, next) => {
+const getLogin = (req, res, next) => {
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -34,7 +34,7 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.getSignup = (req, res, next) => {
+const getSignup = (req, res, next) => {
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -54,7 +54,7 @@ exports.getSignup = (req, res, next) => {
   });
 };
 
-exports.postLogin = (req, res, next) => {
+const postLogin = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -120,7 +120,7 @@ exports.postLogin = (req, res, next) => {
     });
 };
 
-exports.postSignup = (req, res, next) => {
+const postSignup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
 
@@ -166,14 +166,14 @@ exports.postSignup = (req, res, next) => {
     });
 };
 
-exports.postLogout = (req, res, next) => {
+const postLogout = (req, res, next) => {
   req.session.destroy(err => {
     console.log(err);
     res.redirect('/');
   });
 };
 
-exports.getReset = (req, res, next) => {
+const getReset = (req, res, next) => {
   let message = req.flash('error');
   if (message.length > 0) {
     message = message[0];
@@ -187,7 +187,7 @@ exports.getReset = (req, res, next) => {
   });
 };
 
-exports.postReset = (req, res, next) => {
+const postReset = (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
     if (err) {
       console.log(err);
@@ -224,7 +224,7 @@ exports.postReset = (req, res, next) => {
   });
 };
 
-exports.getNewPassword = (req, res, next) => {
+const getNewPassword = (req, res, next) => {
   const token = req.params.token;
   User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
     .then(user => {
@@ -249,7 +249,7 @@ exports.getNewPassword = (req, res, next) => {
     });
 };
 
-exports.postNewPassword = (req, res, next) => {
+const postNewPassword = (req, res, next) => {
   const newPassword = req.body.password;
   const userId = req.body.userId;
   const passwordToken = req.body.passwordToken;
@@ -279,3 +279,16 @@ exports.postNewPassword = (req, res, next) => {
       return next(error);
     });
 };
+
+
+module.exports = {
+  getLogin,
+  getSignup,
+  postLogin,
+  postSignup,
+  postLogout,
+  getReset,
+  postReset,
+  getNewPassword,
+  postNewPassword
+}
