@@ -1,0 +1,8 @@
+{
+    "env": {
+        "MONGO_USER": "e-commerce",
+        "MONGO_PASSWORD": "SatyaEcommerce",
+        "MONGO_DEFAULT_DATABASE": "ecommerce",
+        "STRIPE_KEY": "sk_test_51JxFEdA344b7r8BmjRugMmOWH6y8TDRmlD0IxK6vGZr09m0jFnErwNwyr7RG8Bmo9pOFl0eTUqmUeZ9KNRThryaD00fSczC2xb"
+    }
+}
